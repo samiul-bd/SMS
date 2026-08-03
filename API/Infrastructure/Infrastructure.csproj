@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Files\**" />
+    <EmbeddedResource Remove="Files\**" />
+    <None Remove="Files\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
   </ItemGroup>
 
@@ -15,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Files\" />
     <Folder Include="Security\" />
   </ItemGroup>
 

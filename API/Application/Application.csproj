@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="V1\Ping\Mappers\" />
-    <Folder Include="V2\Data\" />
-    <Folder Include="V2\Ping\Mappers\" />
+    <Compile Remove="V1\**" />
+    <Compile Remove="V2\**" />
+    <EmbeddedResource Remove="V1\**" />
+    <EmbeddedResource Remove="V2\**" />
+    <None Remove="V1\**" />
+    <None Remove="V2\**" />
   </ItemGroup>
 
   <ItemGroup>

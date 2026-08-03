@@ -9,6 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\V1\**" />
+    <Compile Remove="Controllers\V2\**" />
+    <Content Remove="Controllers\V1\**" />
+    <Content Remove="Controllers\V2\**" />
+    <EmbeddedResource Remove="Controllers\V1\**" />
+    <EmbeddedResource Remove="Controllers\V2\**" />
+    <None Remove="Controllers\V1\**" />
+    <None Remove="Controllers\V2\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.1" />
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
@@ -32,9 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\V1\" />
-    <Folder Include="Controllers\V2\" />
-    <Folder Include="Logs\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
