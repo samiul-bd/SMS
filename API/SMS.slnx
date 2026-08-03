@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Core/">
+    <Project Path="Application/Application.csproj" Id="fc586bbc-e991-42d9-b596-16e9b0064c36" />
+    <Project Path="Domain/Domain.csproj" Id="02d272e3-fd55-4dfd-96f9-c95f8ebae7ab" />
+  </Folder>
+  <Folder Name="/src/Infrustructure/">
+    <Project Path="Infrastructure/Infrastructure.csproj" Id="e105beb6-eca1-4b2c-bc58-3200545a3212" />
+    <Project Path="Persistence/Persistence.csproj" Id="75a0088c-7b4b-4bfe-9d44-5a777dc0efc3" />
+  </Folder>
+  <Folder Name="/src/Presentation/">
+    <Project Path="WebAPI/WebAPI.csproj" Id="b6c9e8b1-b0c7-4680-b427-8048f26bbcb6" />
+  </Folder>
+</Solution>

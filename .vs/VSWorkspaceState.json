@@ -1,0 +1,18 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\API",
+    "\\API\\Application",
+    "\\API\\Application\\Auth",
+    "\\API\\Application\\Auth\\Users",
+    "\\API\\Application\\Auth\\Users\\Commands",
+    "\\API\\Application\\bin",
+    "\\API\\WebAPI",
+    "\\API\\WebAPI\\bin",
+    "\\API\\WebAPI\\Controllers",
+    "\\API\\WebAPI\\Properties",
+    "\\API\\WebAPI\\Services"
+  ],
+  "SelectedNode": "\\API\\WebAPI\\Controllers\\AuthBaseController.cs",
+  "PreviewInSolutionExplorer": false
+}

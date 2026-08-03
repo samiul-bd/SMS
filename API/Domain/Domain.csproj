@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Abstractions\Base\" />
+    <Folder Include="Abstractions\Interfaces\" />
+    <Folder Include="Dtos\Auth\" />
+    <Folder Include="Dtos\Common\" />
+    <Folder Include="Dtos\Dashboard\" />
+    <Folder Include="Dtos\Data\" />
+    <Folder Include="Dtos\User\" />
+    <Folder Include="Entities\Audit\" />
+    <Folder Include="Entities\Auth\" />
+    <Folder Include="Entities\Base\" />
+    <Folder Include="Entities\Data\" />
+    <Folder Include="Enums\" />
+    <Folder Include="Exceptions\" />
+    <Folder Include="Responses\" />
+    <Folder Include="Utilities\" />
+  </ItemGroup>
+
+</Project>
