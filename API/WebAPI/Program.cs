@@ -12,6 +12,9 @@ IConfiguration Configuration = builder.Configuration;
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<Application.Interfaces.IAuthService, Infrastructure.Security.AuthService>();
+builder.Services.AddScoped<Application.Interfaces.IAssignmentService, Infrastructure.Services.AssignmentService>();
+builder.Services.AddScoped<Application.Interfaces.IAdminService, Infrastructure.Services.AdminService>();
+builder.Services.AddScoped<Application.Interfaces.IStudentService, Infrastructure.Services.StudentService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

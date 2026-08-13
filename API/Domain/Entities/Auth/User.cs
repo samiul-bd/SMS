@@ -14,4 +14,6 @@ public class User : AuditableEntity
     // Navigation Properties
     public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
     public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
+    public ICollection<TeacherSubject> TeacherSubjects { get; set; } = new List<TeacherSubject>();
+    public ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
 }

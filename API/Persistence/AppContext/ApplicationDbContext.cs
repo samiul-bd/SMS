@@ -11,8 +11,12 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
+    public DbSet<Course> Courses { get; set; }
+    public DbSet<Subject> Subjects { get; set; }
+    public DbSet<TeacherSubject> TeacherSubjects { get; set; }
     public DbSet<Assignment> Assignments { get; set; }
     public DbSet<Submission> Submissions { get; set; }
+    public DbSet<StudentCourse> StudentCourses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,20 +27,59 @@ public class ApplicationDbContext : DbContext
             .HasOne(a => a.Teacher)
             .WithMany(u => u.Assignments)
             .HasForeignKey(a => a.TeacherId)
-            .OnDelete(DeleteBehavior.Restrict); // To avoid multiple cascade path cycle
+            .OnDelete(DeleteBehavior.Restrict);
 
         // 2. Student to Submissions Relation
         modelBuilder.Entity<Submission>()
             .HasOne(s => s.Student)
             .WithMany(u => u.Submissions)
             .HasForeignKey(s => s.StudentId)
-            .OnDelete(DeleteBehavior.Restrict); // To avoid multiple cascade path cycle
+            .OnDelete(DeleteBehavior.Restrict);
 
         // 3. Assignment to Submissions Relation
         modelBuilder.Entity<Submission>()
             .HasOne(s => s.Assignment)
             .WithMany(a => a.Submissions)
             .HasForeignKey(s => s.AssignmentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // 4. Course to Assignments Relation
+        modelBuilder.Entity<Assignment>()
+            .HasOne(a => a.Course)
+            .WithMany(c => c.Assignments)
+            .HasForeignKey(a => a.CourseId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // 5. Subject to Assignments Relation
+        modelBuilder.Entity<Assignment>()
+            .HasOne(a => a.Subject)
+            .WithMany(s => s.Assignments)
+            .HasForeignKey(a => a.SubjectId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // 6. TeacherSubject Relation (Admin assigns Teacher to Subject)
+        modelBuilder.Entity<TeacherSubject>()
+            .HasOne(ts => ts.Teacher)
+            .WithMany(u => u.TeacherSubjects)
+            .HasForeignKey(ts => ts.TeacherId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TeacherSubject>()
+            .HasOne(ts => ts.Subject)
+            .WithMany(s => s.TeacherSubjects)
+            .HasForeignKey(ts => ts.SubjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+        // 7. StudentCourse Relation (Admin enrolls Student to Course)
+        modelBuilder.Entity<StudentCourse>()
+            .HasOne(sc => sc.Student)
+            .WithMany(u => u.StudentCourses)
+            .HasForeignKey(sc => sc.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StudentCourse>()
+            .HasOne(sc => sc.Course)
+            .WithMany(c => c.StudentCourses)
+            .HasForeignKey(sc => sc.CourseId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
