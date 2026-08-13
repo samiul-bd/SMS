@@ -31,5 +31,5 @@ A robust, role-based Assignment & Submission Management System built with **ASP.
 ├── Application           # Interfaces, DTOs, and business logic abstractions
 ├── Infrastructure        # External services and database implementations
 ├── Persistence           # ApplicationDbContext and EF Core Migrations
-├── WebAPI                # Controllers, Program.h, and presentation layer
+├── WebAPI                # Controllers, Program.cs, and presentation layer
 └── Application.UnitTests # xUnit test suites for business rules

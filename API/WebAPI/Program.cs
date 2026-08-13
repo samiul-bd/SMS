@@ -1,5 +1,6 @@
 using Infrastructure.Persistence.AppContext;
 using Microsoft.EntityFrameworkCore;
+using Persistence.AppContext;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure DbContext
@@ -43,5 +44,19 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await DbInitializer.InitializeAsync(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
 
 await app.RunAsync();
