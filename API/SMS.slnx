@@ -11,4 +11,5 @@
   <Folder Name="/src/Presentation/">
     <Project Path="WebAPI/WebAPI.csproj" Id="b6c9e8b1-b0c7-4680-b427-8048f26bbcb6" />
   </Folder>
+  <Project Path="Application.UnitTests/Application.UnitTests.csproj" />
 </Solution>
