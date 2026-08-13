@@ -1,7 +1,18 @@
+using Infrastructure.Persistence.AppContext;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+
 IConfiguration Configuration = builder.Configuration;
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<Application.Interfaces.IAuthService, Infrastructure.Security.AuthService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
