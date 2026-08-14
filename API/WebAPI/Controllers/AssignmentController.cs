@@ -15,6 +15,21 @@ namespace WebAPI.Controllers
             _assignmentService = assignmentService;
         }
 
+        // নতুন অ্যাড করা মেথড: শুধুমাত্র লগড-ইন টিচারের সাবজেক্টগুলো আনবে
+        [HttpGet("my-subjects")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> GetMySubjects()
+        {
+            var teacherIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(teacherIdClaim) || !int.TryParse(teacherIdClaim, out int teacherId))
+                return Unauthorized(new { Message = "User authentication failed. Invalid token." });
+
+            var mySubjects = await _assignmentService.GetSubjectsByTeacherIdAsync(teacherId);
+
+            return Ok(mySubjects);
+        }
+
         [HttpPost("create")]
         [Authorize(Roles = "Teacher")] // Shudhumatro Teacher-rai eta hit korte parbe
         public async Task<IActionResult> CreateAssignment([FromBody] CreateAssignmentDto request)
@@ -32,6 +47,7 @@ namespace WebAPI.Controllers
 
             return Ok(new { Message = result });
         }
+
         [HttpGet("{assignmentId}/submissions")]
         [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> GetSubmissions(int assignmentId)
@@ -58,6 +74,7 @@ namespace WebAPI.Controllers
 
             return Ok(new { Message = result });
         }
+
         [HttpPut("update")]
         [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> UpdateAssignment([FromBody] UpdateAssignmentDto request)

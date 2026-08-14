@@ -3,6 +3,8 @@ using Domain.Dtos.Assignment;
 using Domain.Entities.Data;
 using Infrastructure.Persistence.AppContext;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Services;
@@ -16,28 +18,40 @@ public class AssignmentService : IAssignmentService
         _context = context;
     }
 
+    // নতুন মেথড ইমপ্লিমেন্টেশন
+    public async Task<IEnumerable<object>> GetSubjectsByTeacherIdAsync(int teacherId)
+    {
+        // TeacherSubjects টেবিলের সাথে Subjects টেবিল Join করে শুধুমাত্র এই টিচারের সাবজেক্টগুলো বের করা হচ্ছে
+        var subjects = await _context.TeacherSubjects
+            .Where(ts => ts.TeacherId == teacherId)
+            .Join(_context.Subjects,
+                  ts => ts.SubjectId,
+                  s => s.Id,
+                  (ts, s) => s)
+            .ToListAsync();
+
+        return subjects;
+    }
+
     public async Task<string> CreateAssignmentAsync(int teacherId, CreateAssignmentDto request)
     {
-        // Check if Course and Subject relation is valid
         var subjectExists = await _context.Subjects
             .AnyAsync(s => s.Id == request.SubjectId && s.CourseId == request.CourseId);
 
         if (!subjectExists)
             return "Error: Invalid Course or Subject.";
 
-        // Check if the teacher is assigned to this subject
         var isTeacherAssigned = await _context.TeacherSubjects
             .AnyAsync(ts => ts.TeacherId == teacherId && ts.SubjectId == request.SubjectId);
 
         if (!isTeacherAssigned)
             return "Error: You are not assigned to this subject.";
 
-        // Create the assignment
         var assignment = new Assignment
         {
             Title = request.Title,
             Description = request.Description,
-            Deadline = request.Deadline.ToUniversalTime(), // PostgreSQL requires UTC datetime
+            Deadline = request.Deadline.ToUniversalTime(),
             MaxMarks = request.MaxMarks,
             IsPublished = request.IsPublished,
             CourseId = request.CourseId,
@@ -50,14 +64,14 @@ public class AssignmentService : IAssignmentService
 
         return "Assignment created successfully.";
     }
+
     public async Task<IEnumerable<SubmissionListDto>> GetSubmissionsAsync(int teacherId, int assignmentId)
     {
-        // Teacher jeno shudhu tar nijer assignment er submission dekhte pare
         var assignmentExists = await _context.Assignments
             .AnyAsync(a => a.Id == assignmentId && a.TeacherId == teacherId);
 
         if (!assignmentExists)
-            return new List<SubmissionListDto>(); // Assignment na thakle ba onno teacher er hole faka list
+            return new List<SubmissionListDto>();
 
         var submissions = await _context.Submissions
             .Include(s => s.Student)
@@ -86,14 +100,12 @@ public class AssignmentService : IAssignmentService
         if (submission == null)
             return "Error: Submission not found.";
 
-        // Validate if the teacher who is trying to review is the creator of the assignment
         if (submission.Assignment.TeacherId != teacherId)
             return "Error: You are not authorized to review this submission.";
 
         if (request.MarksAwarded > submission.Assignment.MaxMarks)
             return $"Error: Marks awarded cannot exceed the maximum marks ({submission.Assignment.MaxMarks}).";
 
-        // Update submission details
         submission.MarksAwarded = request.MarksAwarded;
         submission.Feedback = request.Feedback;
         submission.Status = request.Status;
@@ -103,6 +115,7 @@ public class AssignmentService : IAssignmentService
 
         return "Submission reviewed successfully.";
     }
+
     public async Task<string> UpdateAssignmentAsync(int teacherId, UpdateAssignmentDto request)
     {
         var assignment = await _context.Assignments.FirstOrDefaultAsync(a => a.Id == request.Id);
@@ -113,14 +126,12 @@ public class AssignmentService : IAssignmentService
         if (assignment.TeacherId != teacherId)
             return "Error: You are not authorized to update this assignment.";
 
-        // Validate Course and Subject relation
         var subjectExists = await _context.Subjects
             .AnyAsync(s => s.Id == request.SubjectId && s.CourseId == request.CourseId);
 
         if (!subjectExists)
             return "Error: Invalid Course or Subject.";
 
-        // Validate if teacher is still assigned to this subject
         var isTeacherAssigned = await _context.TeacherSubjects
             .AnyAsync(ts => ts.TeacherId == teacherId && ts.SubjectId == request.SubjectId);
 
@@ -156,5 +167,4 @@ public class AssignmentService : IAssignmentService
 
         return "Assignment deleted successfully.";
     }
-
 }

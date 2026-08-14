@@ -12,4 +12,12 @@ public interface IAdminService
     Task<string> EnrollStudentToCourseAsync(EnrollStudentDto request);
     Task<IEnumerable<AssignmentListDto>> GetAllAssignmentsAsync();
     Task<IEnumerable<SubmissionListDto>> GetAllSubmissionsAsync();
+    Task<IEnumerable<object>> GetAllUsersAsync();
+    Task<string> DeleteUserAsync(int id);
+    Task<IEnumerable<object>> GetAllCoursesAsync();
+    Task<IEnumerable<object>> GetSystemReportsAsync();
+    Task<IEnumerable<object>> GetAllSubjectsAsync();
+    Task<string> UpdateUserAsync(UpdateUserDto request);
+    Task<string> UpdateCourseAsync(int id, CreateCourseDto request);
+    Task<string> UpdateSubjectAsync(int id, CreateSubjectDto request);
 }

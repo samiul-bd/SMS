@@ -1,4 +1,5 @@
 ﻿using Domain.Dtos.Assignment;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Application.Interfaces;
@@ -10,4 +11,5 @@ public interface IAssignmentService
     Task<string> ReviewSubmissionAsync(int teacherId, ReviewSubmissionDto request);
     Task<string> UpdateAssignmentAsync(int teacherId, UpdateAssignmentDto request);
     Task<string> DeleteAssignmentAsync(int teacherId, int assignmentId);
+    Task<IEnumerable<object>> GetSubjectsByTeacherIdAsync(int teacherId);
 }
