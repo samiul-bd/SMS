@@ -1,6 +1,7 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Dtos.Assignment;
 using Domain.Entities.Data;
+using Domain.Enums;
 using Infrastructure.Persistence.AppContext;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -108,7 +109,7 @@ public class AssignmentService : IAssignmentService
 
         submission.MarksAwarded = request.MarksAwarded;
         submission.Feedback = request.Feedback;
-        submission.Status = request.Status;
+        submission.Status = SubmissionStatus.Evaluated;
 
         _context.Submissions.Update(submission);
         await _context.SaveChangesAsync();
@@ -166,5 +167,31 @@ public class AssignmentService : IAssignmentService
         await _context.SaveChangesAsync();
 
         return "Assignment deleted successfully.";
+    }
+
+    public async Task<IEnumerable<AssignmentListDto>> GetAssignmentsByTeacherIdAsync(int teacherId)
+    {
+        return await _context.Assignments
+            .Include(a => a.Course)
+            .Include(a => a.Subject)
+            .Include(a => a.Teacher)
+            .Where(a => a.TeacherId == teacherId)
+            .OrderByDescending(a => a.Id)
+            .Select(a => new AssignmentListDto
+            {
+                Id = a.Id,
+                Title = a.Title,
+                Description = a.Description,
+                Deadline = a.Deadline,
+                MaxMarks = a.MaxMarks,
+                IsPublished = a.IsPublished,
+                CourseId = a.CourseId,
+                CourseName = a.Course != null ? a.Course.Name : "",
+                SubjectId = a.SubjectId,
+                SubjectName = a.Subject != null ? a.Subject.Name : "",
+                TeacherName = a.Teacher != null ? a.Teacher.Name : "",
+                SubmissionCount = _context.Submissions.Count(s => s.AssignmentId == a.Id)
+            })
+            .ToListAsync();
     }
 }

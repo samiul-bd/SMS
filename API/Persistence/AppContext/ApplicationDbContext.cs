@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Auth;
+using Domain.Entities.Auth;
 using Domain.Entities.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,42 +22,36 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // 1. Teacher to Assignments Relation
         modelBuilder.Entity<Assignment>()
             .HasOne(a => a.Teacher)
             .WithMany(u => u.Assignments)
             .HasForeignKey(a => a.TeacherId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // 2. Student to Submissions Relation
         modelBuilder.Entity<Submission>()
             .HasOne(s => s.Student)
             .WithMany(u => u.Submissions)
             .HasForeignKey(s => s.StudentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // 3. Assignment to Submissions Relation
         modelBuilder.Entity<Submission>()
             .HasOne(s => s.Assignment)
             .WithMany(a => a.Submissions)
             .HasForeignKey(s => s.AssignmentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // 4. Course to Assignments Relation
         modelBuilder.Entity<Assignment>()
             .HasOne(a => a.Course)
             .WithMany(c => c.Assignments)
             .HasForeignKey(a => a.CourseId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // 5. Subject to Assignments Relation
         modelBuilder.Entity<Assignment>()
             .HasOne(a => a.Subject)
             .WithMany(s => s.Assignments)
             .HasForeignKey(a => a.SubjectId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // 6. TeacherSubject Relation (Admin assigns Teacher to Subject)
         modelBuilder.Entity<TeacherSubject>()
             .HasOne(ts => ts.Teacher)
             .WithMany(u => u.TeacherSubjects)
@@ -69,7 +63,7 @@ public class ApplicationDbContext : DbContext
             .WithMany(s => s.TeacherSubjects)
             .HasForeignKey(ts => ts.SubjectId)
             .OnDelete(DeleteBehavior.Cascade);
-        // 7. StudentCourse Relation (Admin enrolls Student to Course)
+
         modelBuilder.Entity<StudentCourse>()
             .HasOne(sc => sc.Student)
             .WithMany(u => u.StudentCourses)

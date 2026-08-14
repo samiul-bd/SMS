@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Base;
+using Domain.Entities.Base;
 using Domain.Entities.Auth;
 
 namespace Domain.Entities.Data;
@@ -11,7 +11,6 @@ public class Assignment : AuditableEntity
     public int MaxMarks { get; set; }
     public bool IsPublished { get; set; }
 
-    // Notun Relational Fields
     public int CourseId { get; set; }
     public Course Course { get; set; } = null!;
 

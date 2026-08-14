@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Dtos.Assignment;
 using Domain.Entities.Data;
 using Domain.Enums;
@@ -58,27 +58,23 @@ public class StudentService : IStudentService
         if (!assignment.IsPublished)
             return "Error: You cannot submit to an unpublished assignment.";
 
-        // Check if student is enrolled in the course of this assignment
         var isEnrolled = await _context.StudentCourses
             .AnyAsync(sc => sc.StudentId == studentId && sc.CourseId == assignment.CourseId);
         if (!isEnrolled)
             return "Error: You are not enrolled in the course for this assignment.";
 
-        // Check deadline (PostgreSQL te universally UTC use hoy, tai DateTime.UtcNow deya bhalo)
         if (DateTime.UtcNow > assignment.Deadline)
             return "Error: The deadline for this assignment has passed.";
 
-        // Check if submission already exists
         var existingSubmission = await _context.Submissions
             .FirstOrDefaultAsync(s => s.StudentId == studentId && s.AssignmentId == request.AssignmentId);
 
         if (existingSubmission != null)
         {
-            // Update existing submission (Update allowed before deadline)
             existingSubmission.AnswerContent = request.AnswerContent;
             existingSubmission.SubmittedAt = DateTime.UtcNow;
             existingSubmission.Status = SubmissionStatus.Pending;
-            existingSubmission.MarksAwarded = null; // Re-evalute korte hobe karon abar submit koreche
+            existingSubmission.MarksAwarded = null;
             existingSubmission.Feedback = null;
 
             _context.Submissions.Update(existingSubmission);
@@ -87,7 +83,6 @@ public class StudentService : IStudentService
             return "Submission updated successfully.";
         }
 
-        // Create new submission
         var newSubmission = new Submission
         {
             AssignmentId = request.AssignmentId,

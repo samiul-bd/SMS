@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Dtos.Admin;
 using Domain.Dtos.Assignment;
 using Domain.Entities.Data;
@@ -132,10 +132,18 @@ namespace Infrastructure.Services
         {
             var submissions = await _context.Submissions
                 .Include(s => s.Student)
+                .Include(s => s.Assignment)
+                    .ThenInclude(a => a.Course)
+                .Include(s => s.Assignment)
+                    .ThenInclude(a => a.Subject)
                 .Select(s => new SubmissionListDto
                 {
                     SubmissionId = s.Id,
-                    StudentName = s.Student.Name,
+                    AssignmentId = s.AssignmentId,
+                    AssignmentTitle = s.Assignment != null ? s.Assignment.Title : "",
+                    CourseName = s.Assignment != null && s.Assignment.Course != null ? s.Assignment.Course.Name : "",
+                    SubjectName = s.Assignment != null && s.Assignment.Subject != null ? s.Assignment.Subject.Name : "",
+                    StudentName = s.Student != null ? s.Student.Name : "",
                     AnswerContent = s.AnswerContent,
                     SubmittedAt = s.SubmittedAt,
                     MarksAwarded = s.MarksAwarded,
@@ -147,28 +155,35 @@ namespace Infrastructure.Services
             return submissions;
         }
 
-        // --- User Management Methods Added ---
         public async Task<IEnumerable<object>> GetAllUsersAsync()
         {
-            // ডাটাবেস থেকে সব ইউজার আনা হচ্ছে
             var users = await _context.Users.ToListAsync();
 
-            // টিচারদের অ্যাসাইন করা সব সাবজেক্ট আনা হচ্ছে
             var teacherSubjects = await _context.TeacherSubjects
                 .Include(ts => ts.Subject)
                 .ToListAsync();
 
-            // ইউজারদের সাথে তাদের সাবজেক্টগুলো ম্যাপ করে লিস্ট তৈরি করা হচ্ছে
+            var studentCourses = await _context.StudentCourses
+                .Include(sc => sc.Course)
+                .ToListAsync();
+
             var result = users.Select(u => new
             {
                 Id = u.Id,
                 Name = u.Name,
                 Email = u.Email,
                 Role = u.Role.ToString(),
+                IsApproved = u.IsApproved,
                 Subjects = u.Role == UserRole.Teacher
                     ? teacherSubjects
                         .Where(ts => ts.TeacherId == u.Id)
-                        .Select(ts => new { Name = ts.Subject?.Name })
+                        .Select(ts => new { Name = ts.Subject != null ? ts.Subject.Name : "" })
+                        .ToList()
+                    : null,
+                Courses = u.Role == UserRole.Student
+                    ? studentCourses
+                        .Where(sc => sc.StudentId == u.Id)
+                        .Select(sc => new { Name = sc.Course != null ? sc.Course.Name : "" })
                         .ToList()
                     : null
             });
@@ -192,7 +207,8 @@ namespace Infrastructure.Services
                 .Select(c => new
                 {
                     Id = c.Id,
-                    Name = c.Name
+                    Name = c.Name,
+                    Description = c.Description
                 })
                 .ToListAsync();
 
@@ -287,6 +303,35 @@ namespace Infrastructure.Services
 
             await _context.SaveChangesAsync();
             return "Subject updated successfully.";
+        }
+
+        public async Task<IEnumerable<object>> GetPendingUsersAsync()
+        {
+            var pendingUsers = await _context.Users
+                .Where(u => !u.IsApproved)
+                .Select(u => new
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Email = u.Email,
+                    RequestedRole = u.Role.ToString(),
+                    IsApproved = u.IsApproved
+                })
+                .ToListAsync();
+
+            return pendingUsers;
+        }
+
+        public async Task<string> ApproveUserAsync(ApproveUserDto request)
+        {
+            var user = await _context.Users.FindAsync(request.UserId);
+            if (user == null) return "Error: User not found.";
+
+            user.Role = request.AssignedRole;
+            user.IsApproved = request.IsApproved;
+
+            await _context.SaveChangesAsync();
+            return $"User '{user.Email}' approved successfully as {user.Role}.";
         }
     }
 }

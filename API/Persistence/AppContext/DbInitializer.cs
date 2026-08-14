@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Auth;
+using Domain.Entities.Auth;
 using Domain.Enums;
 using Infrastructure.Persistence.AppContext;
 using Microsoft.EntityFrameworkCore;
@@ -16,16 +16,13 @@ public static class DbInitializer
         using var context = new ApplicationDbContext(
             serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
 
-        // Database ensure created / migrated
         await context.Database.MigrateAsync();
 
-        // Check if users already exist
         if (context.Users.Any())
         {
-            return; // Already seeded
+            return;
         }
 
-        // Default Admin, Teacher, and Student accounts
         var users = new User[]
         {
             new User
@@ -33,21 +30,24 @@ public static class DbInitializer
                 Name = "System Admin",
                 Email = "admin@sms.com",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
-                Role = UserRole.Admin
+                Role = UserRole.Admin,
+                IsApproved = true
             },
             new User
             {
                 Name = "Default Teacher",
                 Email = "teacher@sms.com",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Teacher@123"),
-                Role = UserRole.Teacher
+                Role = UserRole.Teacher,
+                IsApproved = true
             },
             new User
             {
                 Name = "Default Student",
                 Email = "student@sms.com",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Student@123"),
-                Role = UserRole.Student
+                Role = UserRole.Student,
+                IsApproved = true
             }
         };
 

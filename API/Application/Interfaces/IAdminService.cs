@@ -1,4 +1,4 @@
-﻿using Domain.Dtos.Admin;
+using Domain.Dtos.Admin;
 using Domain.Dtos.Assignment;
 using System.Threading.Tasks;
 
@@ -20,4 +20,6 @@ public interface IAdminService
     Task<string> UpdateUserAsync(UpdateUserDto request);
     Task<string> UpdateCourseAsync(int id, CreateCourseDto request);
     Task<string> UpdateSubjectAsync(int id, CreateSubjectDto request);
+    Task<IEnumerable<object>> GetPendingUsersAsync();
+    Task<string> ApproveUserAsync(ApproveUserDto request);
 }

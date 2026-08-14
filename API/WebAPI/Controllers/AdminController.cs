@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Dtos.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
             return Ok(new { Message = result });
         }
         [HttpGet("courses")]
-        [Authorize(Roles = "Admin,Teacher")] // Teacher-কেও কোর্স লোড করার পারমিশন দেওয়া হলো
+        [Authorize(Roles = "Admin,Teacher")]
         public async Task<IActionResult> GetAllCourses()
         {
             var courses = await _adminService.GetAllCoursesAsync();
@@ -137,5 +137,21 @@ namespace WebAPI.Controllers
             return Ok(new { Message = result });
         }
 
+        [HttpGet("pending-users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetPendingUsers()
+        {
+            var pendingUsers = await _adminService.GetPendingUsersAsync();
+            return Ok(pendingUsers);
+        }
+
+        [HttpPost("approve-user")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ApproveUser([FromBody] ApproveUserDto request)
+        {
+            var result = await _adminService.ApproveUserAsync(request);
+            if (result.StartsWith("Error")) return BadRequest(new { Message = result });
+            return Ok(new { Message = result });
+        }
     }
 }

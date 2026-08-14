@@ -9,7 +9,6 @@ import { api } from "@/services/api";
 import { jwtDecode } from "jwt-decode";
 import { User } from "@/types/auth";
 
-// Zod Schema for Validation
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -34,21 +33,17 @@ export default function LoginPage() {
     try {
       const response = await api.post("/auth/login", data);
       
-      // Handle both object { token: "..." } and direct string responses
       const token = response.data.token || response.data; 
 
       if (!token || typeof token !== "string") {
         throw new Error("Invalid token received from server.");
       }
       
-      // Save token
       localStorage.setItem("token", token);
       
-      // Decode token
       const decodedToken: any = jwtDecode(token);
       console.log("Decoded Token:", decodedToken);
       
-      // Handle .NET Default Claim Types
       const userRole = decodedToken.role || decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
       const userName = decodedToken.name || decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
       const userEmail = decodedToken.email || decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
@@ -62,7 +57,6 @@ export default function LoginPage() {
 
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Redirect based on role
       if (userRole === "Admin") router.push("/admin");
       else if (userRole === "Teacher") router.push("/teacher");
       else if (userRole === "Student") router.push("/student");
@@ -131,6 +125,15 @@ export default function LoginPage() {
           >
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
+
+          <div className="text-center pt-3 border-t border-gray-100">
+            <p className="text-xs text-gray-600">
+              Don't have an account?{" "}
+              <a href="/register" className="text-blue-600 font-bold hover:underline">
+                Register here
+              </a>
+            </p>
+          </div>
         </form>
       </div>
     </div>

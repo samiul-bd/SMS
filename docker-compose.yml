@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Service
+  db:
+    image: postgres:latest
+    container_name: sms_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # 2. .NET Core WebAPI Backend Service
+  webapi:
+    image: sms-webapi
+    container_name: sms_webapi_container
+    restart: always
+    build:
+      context: ./API
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=sms_db;Username=postgres;Password=password
+      - JwtSettings__Key=ThisIsASecretKeyForAssignmentManagementSystem2026!@#
+      - JwtSettings__Issuer=issuer
+      - JwtSettings__Audience=audiance
+      - JwtSettings__DurationInMinutes=60
+    depends_on:
+      - db
+
+  # 3. Next.js Frontend Client Service
+  frontend:
+    image: sms-frontend
+    container_name: sms_frontend_container
+    restart: always
+    build:
+      context: ./sms-client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+    depends_on:
+      - webapi
+
+volumes:
+  pgdata:

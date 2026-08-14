@@ -2,14 +2,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ["SMS.sln", "./"]
+COPY ["SMS.slnx", "./"]
 COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Persistence/Persistence.csproj", "Persistence/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 COPY ["WebAPI/WebAPI.csproj", "WebAPI/"]
 
-RUN dotnet restore "SMS.sln"
+RUN dotnet restore "SMS.slnx"
 
 COPY . .
 WORKDIR "/src/WebAPI"

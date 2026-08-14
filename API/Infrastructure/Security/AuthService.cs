@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Dtos.Auth;
 using Domain.Entities.Auth;
 using Microsoft.EntityFrameworkCore;
@@ -26,35 +26,34 @@ public class AuthService : IAuthService
 
     public async Task<string> RegisterAsync(RegisterDto request)
     {
-        // Check if user already exists
         if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             return "Error: User with this email already exists!";
 
-        // Create new user and hash password
         var user = new User
         {
             Name = request.Name,
             Email = request.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = request.Role
+            Role = request.Role,
+            IsApproved = false
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return "User registered successfully.";
+        return "User registered successfully. Please wait for an Admin to approve your account.";
     }
 
     public async Task<string> LoginAsync(LoginDto request)
     {
-        // Find user by email
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-        // Verify user exists and password is correct
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return "Error: Invalid email or password.";
 
-        // Generate JWT Token
+        if (!user.IsApproved)
+            return "Error: Your account is pending approval by an Admin.";
+
         return GenerateJwtToken(user);
     }
 

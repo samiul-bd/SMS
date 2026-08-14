@@ -32,12 +32,11 @@ export default function CreateAssignment() {
   });
 
   useEffect(() => {
-    // Course এবং Subject দুটোই একসাথে লোড করা হচ্ছে
     const fetchData = async () => {
       try {
         const [courseRes, subjectRes] = await Promise.all([
           api.get("/Admin/courses"),
-          api.get("/Assignment/my-subjects") // <-- শুধুমাত্র এই টিচারের সাবজেক্ট ফেচ করা হচ্ছে
+          api.get("/Assignment/my-subjects")
         ]);
         setCourses(courseRes.data);
         setSubjects(subjectRes.data);

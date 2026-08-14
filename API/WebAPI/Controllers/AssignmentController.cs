@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Dtos.Assignment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +28,18 @@ namespace WebAPI.Controllers
             var mySubjects = await _assignmentService.GetSubjectsByTeacherIdAsync(teacherId);
 
             return Ok(mySubjects);
+        }
+
+        [HttpGet("my-assignments")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> GetMyAssignments()
+        {
+            var teacherIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(teacherIdClaim) || !int.TryParse(teacherIdClaim, out int teacherId))
+                return Unauthorized(new { Message = "User authentication failed. Invalid token." });
+
+            var assignments = await _assignmentService.GetAssignmentsByTeacherIdAsync(teacherId);
+            return Ok(assignments);
         }
 
         [HttpPost("create")]
