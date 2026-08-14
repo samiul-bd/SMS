@@ -12,10 +12,15 @@ The **Assignment & Submission Management System** provides tailored interfaces a
   - Manage user accounts & roles.
   - Approve anonymous public registration requests and assign approved system roles (`Student`, `Teacher`, `Admin`).
   - Create and edit courses & subjects.
-  - Allocate teachers to subjects and enroll students into courses.
+  - Allocate teachers to specific subjects and enroll students into courses.
   - View all assignments & inspect student submission details with full answer text, scores, and teacher feedback.
   - Manage application-level settings (institution name, academic terms, passing thresholds, late policies).
-* **Teacher**: Create/edit/delete assignments, draft vs. published state control, set deadlines and maximum marks, inspect student submissions, and award marks with feedback.
+* **Teacher**:
+  - Create, edit, and delete assignments.
+  - **Subject Scope Control**: When creating an assignment, teachers can only view and select subjects from the dropdown that have been assigned to them by the Admin.
+  - Draft vs. published state control for assignments.
+  - Set deadlines and maximum marks.
+  - Inspect student submissions and award marks with teacher feedback.
 * **Student**: View enrolled course assignments, submit text answers, update submissions before deadlines, and track evaluation status, marks awarded, and teacher feedback.
 * **Anonymous Visitor**: Public account registration on `/register` with pending Admin review notification.
 
@@ -115,7 +120,9 @@ Run all 3 containers (PostgreSQL + .NET Backend API + Next.js Frontend) with a s
    ```bash
    dotnet run --project WebAPI
    ```
-   Swagger API documentation will be available at [http://localhost:5000/swagger](http://localhost:5000/swagger).
+   Backend API listening addresses:
+   - **HTTP**: `http://localhost:5176` (Swagger: [http://localhost:5176/swagger](http://localhost:5176/swagger))
+   - **HTTPS**: `https://localhost:7122` (Swagger: [https://localhost:7122/swagger](https://localhost:7122/swagger))
 
 #### 2. Frontend Setup (Next.js)
 
@@ -123,12 +130,16 @@ Run all 3 containers (PostgreSQL + .NET Backend API + Next.js Frontend) with a s
    ```bash
    cd sms-client
    ```
-2. Install dependencies and start development server:
+2. Create `.env.local` pointing to local API port:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:5176/api
+   ```
+3. Install dependencies and start development server:
    ```bash
    npm install
    npm run dev
    ```
-3. Access the web client at [http://localhost:3000](http://localhost:3000).
+4. Access the web client at [http://localhost:3000](http://localhost:3000).
 
 ---
 
@@ -147,14 +158,16 @@ dotnet test API/Application.UnitTests/Application.UnitTests.csproj
 - `ReviewSubmission_ShouldFail_WhenMarksExceedMaxMarks`
 - `LoginAsync_ShouldReturnError_WhenUserIsNotApproved`
 - `ApproveUserAsync_ShouldApproveAndChangeUserRole`
+- `SubmitAssignment_ShouldFail_WhenDeadlinePassed`
 
 ---
 
 ## System Design Assumptions & Decisions
 
-1. **Anonymous Registration & Approval**: Anonymous visitors can submit registration requests on `/register`. Accounts start in `IsApproved = false` state and cannot log in until an Admin assigns a role and approves them on `/admin/users`.
-2. **Role Access Control**: Roles (`Admin`, `Teacher`, `Student`) are encoded directly inside JWT Claims. Every API endpoint enforces role authorization via `[Authorize(Roles = "...")]`.
-3. **Assignment Submissions**: Students are allowed to resubmit/update their written answer multiple times **before** the assignment deadline. Once the deadline passes, submissions are locked.
-4. **Re-evaluation Workflow**: If a student resubmits prior to the deadline, the submission status resets to `Submitted` / `Pending` so teachers can re-evaluate the updated work.
-5. **Draft vs. Published**: Assignments saved in `Draft` state are visible only to the teacher who created them and are hidden from student portals until set to `Published`.
-6. **Database Seeding**: Demo accounts are hashed using BCrypt and seeded asynchronously on initial startup if no existing users are found in the database.
+1. **Teacher Subject Scope Isolation**: To maintain academic integrity, teachers are strictly restricted to creating assignments only for subjects assigned to them by an Admin. The assignment creation form dynamically populates the subject dropdown from `GET /api/Assignment/my-subjects`, preventing teachers from creating coursework for unallocated subjects.
+2. **Anonymous Registration & Approval**: Anonymous visitors can submit registration requests on `/register`. Accounts start in `IsApproved = false` state and cannot log in until an Admin assigns a role and approves them on `/admin/users`.
+3. **Role Access Control**: Roles (`Admin`, `Teacher`, `Student`) are encoded directly inside JWT Claims. Every API endpoint enforces role authorization via `[Authorize(Roles = "...")]`.
+4. **Assignment Submissions**: Students are allowed to resubmit/update their written answer multiple times **before** the assignment deadline. Once the deadline passes, submissions are locked.
+5. **Re-evaluation Workflow**: If a student resubmits prior to the deadline, the submission status resets to `Submitted` / `Pending` so teachers can re-evaluate the updated work.
+6. **Draft vs. Published**: Assignments saved in `Draft` state are visible only to the teacher who created them and are hidden from student portals until set to `Published`.
+7. **Database Seeding**: Demo accounts are hashed using BCrypt and seeded asynchronously on initial startup if no existing users are found in the database.
